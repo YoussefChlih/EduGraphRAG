@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { extractText, getMeta } from "unpdf";
+import { parsePDF } from "@/lib/pdf-parser";
 import { chunkDocument } from "@/lib/chunker";
 import { generateEmbedding } from "@/lib/embeddings";
 import { extractEntities, storeInGraph } from "@/lib/graph-builder";
@@ -33,17 +33,12 @@ export async function POST(request: Request) {
       );
     }
 
-    // Parse PDF using unpdf (serverless-friendly, no worker needed)
+    // Parse PDF (worker-free for server compatibility)
     const buffer = new Uint8Array(await file.arrayBuffer());
-    const { text, totalPages } = await extractText(buffer, { mergePages: false });
-    const meta = await getMeta(buffer);
+    const { pages, totalPages, fullText } = await parsePDF(buffer);
 
     const documentId = crypto.randomUUID();
     const title = file.name.replace(/\.pdf$/i, "");
-    const pageCount = totalPages || meta.info?.numPages || 1;
-
-    // Determine full text for language detection
-    const fullText = Array.isArray(text) ? text.join("\n") : text;
 
     // Store document node in Neo4j
     await runQuery(
@@ -61,14 +56,9 @@ export async function POST(request: Request) {
         title,
         filename: file.name,
         language: detectLanguage(fullText),
-        pageCount,
+        pageCount: totalPages,
       }
     );
-
-    // Build pages array
-    const pages = Array.isArray(text)
-      ? text.map((pageText, i) => ({ text: pageText, pageNumber: i + 1 }))
-      : [{ text, pageNumber: 1 }];
 
     // Chunk the document
     const chunks = chunkDocument(pages, documentId, {
@@ -124,7 +114,7 @@ export async function POST(request: Request) {
       data: {
         documentId,
         title,
-        pageCount,
+        pageCount: totalPages,
         chunkCount: chunks.length,
       },
     });
