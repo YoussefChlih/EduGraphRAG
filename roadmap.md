@@ -1,49 +1,67 @@
 # Development Roadmap
 
-## Phase 1: Foundation (Current)
-- [x] Project structure and documentation
-- [ ] Initialize Next.js project with TypeScript
-- [ ] Configure Tailwind CSS + shadcn/ui
-- [ ] Set up environment variables structure
-- [ ] Neo4j AuraDB connection utility
-- [ ] Basic layout and navigation
+## Phase 1: Foundation [COMPLETE]
 
-## Phase 2: Document Ingestion
-- [ ] PDF upload UI component
-- [ ] PDF parsing with pdf-parse
-- [ ] Text cleaning and normalization
-- [ ] Recursive text chunking
-- [ ] Embedding generation (BGE-M3 via API or local)
-- [ ] Store chunks + embeddings in Neo4j vector index
+- [x] Project structure and documentation
+- [x] Next.js frontend with TypeScript and Tailwind
+- [x] FastAPI backend with service layer
+- [x] Environment variable configuration
+- [x] Neo4j connection utility
+- [x] Basic layout and navigation
+
+## Phase 2: Document Ingestion [COMPLETE]
+
+- [x] PDF upload UI with drag-and-drop
+- [x] PDF parsing with PyMuPDF
+- [x] Text cleaning and normalization
+- [x] Recursive text chunking (512 chars, 50 overlap)
+- [x] Embedding generation via HuggingFace API (BGE-M3)
+- [x] Store chunks and embeddings in Neo4j
 - [ ] Document management UI (list, delete)
 
-## Phase 3: Knowledge Graph
-- [ ] Entity extraction prompts (LLM-based)
-- [ ] Relation extraction prompts
-- [ ] Neo4j graph construction (concepts + relationships)
-- [ ] Graph visualization component (force-directed)
-- [ ] Concept exploration UI
+## Phase 3: Knowledge Graph [COMPLETE]
 
-## Phase 4: Retrieval & Chat
-- [ ] Vector similarity search implementation
-- [ ] Graph traversal retrieval
-- [ ] Hybrid retrieval merging + re-ranking
-- [ ] LangChain RAG chain setup
-- [ ] Chat UI with streaming responses
-- [ ] Source citations with page references
-- [ ] Conversation history management
+- [x] Entity extraction via LLM (concepts + descriptions)
+- [x] Relation extraction (5 relationship types)
+- [x] Neo4j graph construction
+- [ ] Interactive graph visualization (react-force-graph)
+- [x] Concept listing endpoint
 
-## Phase 5: Multilingual & Polish
-- [ ] Language detection on upload
-- [ ] Arabic RTL support
-- [ ] French language testing
+## Phase 4: Retrieval and Chat [COMPLETE]
+
+- [x] Vector similarity search via Neo4j vector index
+- [x] Graph traversal retrieval (1-hop expansion)
+- [x] Hybrid retrieval merging and deduplication
+- [x] LangChain RAG pipeline (Groq + OpenAI)
+- [x] Chat UI with message history
+- [x] Source citations with document name and page number
+- [ ] Streaming responses (SSE)
+- [ ] Conversation history persistence
+
+## Phase 5: Multilingual Support [IN PROGRESS]
+
+- [x] Language detection on upload (AR, FR, EN)
+- [x] Cross-lingual embeddings (BGE-M3)
+- [x] Language-aware chat responses
+- [ ] Arabic RTL layout support
+- [ ] French language end-to-end testing
 - [ ] Cross-lingual retrieval validation
-- [ ] UI/UX polish and responsive design
-- [ ] Error handling and loading states
 
-## Phase 6: Deployment
-- [ ] Vercel deployment configuration
-- [ ] Neo4j Aura Cloud setup
-- [ ] Environment variable management
-- [ ] Performance optimization
-- [ ] Documentation for end users
+## Phase 6: Polish and Testing
+
+- [ ] Loading states and skeleton screens
+- [ ] Error boundaries and user-friendly error messages
+- [ ] Responsive design for mobile
+- [ ] End-to-end testing with real documents
+- [ ] Rate limiting on backend endpoints
+- [ ] Input sanitization and validation hardening
+
+## Phase 7: Deployment
+
+- [ ] Neo4j Aura Cloud instance setup
+- [ ] Create vector index in production
+- [ ] Vercel deployment for frontend
+- [ ] Railway or Render deployment for backend
+- [ ] Environment variable management in production
+- [ ] Performance monitoring and logging
+- [ ] User documentation

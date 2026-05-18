@@ -1,80 +1,133 @@
 # Agent Guidelines
 
-## Code Conventions
+## Project Architecture
 
-### General
+This project uses a separated frontend/backend architecture:
+
+- Frontend: Next.js (TypeScript) on port 3000 -- UI only, no API routes
+- Backend: FastAPI (Python) on port 8000 -- all business logic
+
+## Frontend Conventions (TypeScript / Next.js)
+
+### General Rules
 - TypeScript strict mode
-- Functional components with hooks (React)
+- Functional components with hooks
 - Named exports preferred
 - Descriptive variable names
-- Comments for complex logic only
+- Comments only for complex logic
 
 ### File Naming
-- Components: PascalCase (`ChatInterface.tsx`)
-- Utilities/libs: camelCase (`textChunker.ts`)
-- API routes: kebab-case folders (`/api/upload/route.ts`)
-- Types: PascalCase with `.types.ts` suffix or in `types/` folder
+- Components: PascalCase (ChatInterface.tsx)
+- Utilities: camelCase (utils.ts)
+- Types: PascalCase in types/ folder
 
-### Project Structure
+### Frontend Structure
 ```
 src/
-├── app/                    # Next.js App Router
-│   ├── page.tsx           # Home/landing
-│   ├── chat/page.tsx      # Chat interface
-│   ├── upload/page.tsx    # Document upload
-│   ├── graph/page.tsx     # Graph explorer
-│   └── api/               # API routes
-│       ├── upload/route.ts
-│       ├── chat/route.ts
-│       ├── documents/route.ts
-│       └── graph/route.ts
-├── components/            # Reusable UI components
-│   ├── ui/               # shadcn/ui components
-│   ├── chat/             # Chat-specific components
-│   ├── upload/           # Upload-specific components
-│   └── graph/            # Graph visualization components
-├── lib/                   # Core business logic
-│   ├── neo4j.ts          # Neo4j connection
-│   ├── chunker.ts        # Text chunking
-│   ├── embeddings.ts     # Embedding generation
-│   ├── graph-builder.ts  # Knowledge graph construction
-│   ├── retrieval.ts      # Hybrid retrieval logic
-│   └── llm.ts           # LLM client (Groq/OpenAI)
-├── types/                 # TypeScript type definitions
-└── config/               # Configuration constants
+├── app/                    # Next.js App Router pages
+│   ├── page.tsx            # Home/landing
+│   ├── chat/page.tsx       # Chat interface
+│   ├── upload/page.tsx     # Document upload
+│   └── graph/page.tsx      # Graph explorer
+├── components/             # Reusable UI components
+│   ├── ui/                 # shadcn/ui base components
+│   └── navigation.tsx      # App navigation
+├── lib/                    # Frontend utilities
+│   └── utils.ts            # cn() helper for Tailwind
+├── types/                  # TypeScript type definitions
+│   └── index.ts
+└── config/                 # Frontend configuration
+    └── index.ts            # API URL, app name
 ```
 
-### Dependencies to Use
-- `next` — Framework
-- `tailwindcss` — Styling
-- `neo4j-driver` — Neo4j connection
-- `langchain` — LLM orchestration
-- `@langchain/groq` — Groq integration
-- `@langchain/openai` — OpenAI integration
-- `pdf-parse` — PDF text extraction
-- `lucide-react` — Icons
-- `react-force-graph` — Graph visualization
+### Frontend Dependencies
+- next, react, react-dom
+- tailwindcss, @tailwindcss/postcss
+- class-variance-authority, clsx, tailwind-merge
+- lucide-react
 
-### Environment Variables
+### API Communication
+All API calls go to NEXT_PUBLIC_API_URL (default: http://localhost:8000).
+Use fetch() with the full URL prefix.
+
+## Backend Conventions (Python / FastAPI)
+
+### General Rules
+- Python 3.11+ with type hints
+- Async functions for all I/O operations
+- Pydantic models for request/response validation
+- Descriptive function and variable names
+- Docstrings for public functions
+
+### File Naming
+- Modules: snake_case (pdf_parser.py)
+- Classes: PascalCase (TextChunk)
+- Functions: snake_case (extract_entities)
+
+### Backend Structure
 ```
-NEO4J_URI=
-NEO4J_USERNAME=
-NEO4J_PASSWORD=
-GROQ_API_KEY=
-OPENAI_API_KEY=
-EMBEDDING_MODEL=bge-m3
+backend/
+├── app/
+│   ├── main.py             # FastAPI app, CORS, router registration
+│   ├── config.py           # Settings from environment variables
+│   ├── routers/            # API endpoint handlers
+│   │   ├── upload.py       # POST /api/upload
+│   │   ├── chat.py         # POST /api/chat
+│   │   ├── documents.py    # GET/DELETE /api/documents
+│   │   ├── graph.py        # GET /api/graph
+│   │   └── concepts.py     # GET /api/concepts
+│   └── services/           # Core business logic
+│       ├── neo4j_service.py
+│       ├── pdf_parser.py
+│       ├── chunker.py
+│       ├── embeddings.py
+│       ├── llm.py
+│       ├── graph_builder.py
+│       └── retrieval.py
+├── requirements.txt
+└── .env.example
 ```
+
+### Backend Dependencies
+- fastapi, uvicorn, python-multipart
+- neo4j (Python driver)
+- langchain, langchain-groq, langchain-openai
+- pymupdf (fitz) for PDF parsing
+- httpx for async HTTP requests
+- python-dotenv for environment loading
 
 ### Error Handling
-- Use try/catch in all API routes
-- Return consistent error response format: `{ error: string, details?: string }`
-- Log errors server-side, show user-friendly messages client-side
+- Use HTTPException with appropriate status codes
+- Log errors server-side with context
+- Return consistent JSON format to frontend
 
 ### API Response Format
-```typescript
+```json
 // Success
-{ success: true, data: T }
+{"success": true, "data": {...}}
 
-// Error
-{ success: false, error: string, details?: string }
+// Error (via HTTPException)
+{"detail": "Error description"}
+```
+
+## Environment Variables
+
+### Backend (.env)
+```
+NEO4J_URI=neo4j+s://...
+NEO4J_USERNAME=neo4j
+NEO4J_PASSWORD=...
+GROQ_API_KEY=gsk_...
+OPENAI_API_KEY=sk-...
+HF_API_TOKEN=hf_...
+EMBEDDING_MODEL=BAAI/bge-m3
+CHUNK_SIZE=512
+CHUNK_OVERLAP=50
+MAX_FILE_SIZE_MB=20
+```
+
+### Frontend (.env.local)
+```
+NEXT_PUBLIC_API_URL=http://localhost:8000
+NEXT_PUBLIC_APP_NAME=Kwiz_y
 ```

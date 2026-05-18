@@ -1,17 +1,35 @@
 # Agents Directory
 
-This folder contains agent-specific configurations, prompts, and context files used by AI agents working on this project.
+This folder contains prompts, configurations, and context files used by AI agents working on this project. It serves as a reference for both human developers and AI assistants to maintain consistency across the codebase.
 
 ## Structure
 
-- `prompts/` — System prompts and templates for LLM calls
-- `configs/` — Agent behavior configurations
-- `context/` — Contextual files agents can reference
+```
+agents/
+├── prompts/                 # System prompts for LLM calls
+│   ├── entity-extraction.md # Prompt for concept/relation extraction
+│   └── chat-response.md    # Prompt for generating cited answers
+├── configs/                 # Agent behavior and code conventions
+│   └── agent-guidelines.md # Coding standards, project structure
+└── context/                 # Background knowledge for agents
+    ├── tech-stack.md        # Technology reference table
+    └── decisions-log.md     # Architecture Decision Records
+```
 
 ## Purpose
 
-These files help AI agents (Kiro, Copilot, etc.) understand:
-1. The project's architecture and conventions
-2. How to generate consistent code
-3. What prompts to use for entity extraction, chat, etc.
-4. Project-specific patterns and decisions
+These files provide AI agents with:
+
+1. Project architecture and coding conventions
+2. System prompts used in the RAG pipeline
+3. Technology choices and their rationale
+4. Project-specific patterns and constraints
+
+## Usage
+
+When working on this project, agents should:
+
+- Read `configs/agent-guidelines.md` for code style and structure
+- Reference `context/tech-stack.md` for dependency and version info
+- Use prompts from `prompts/` when implementing LLM interactions
+- Consult `context/decisions-log.md` before proposing architectural changes
