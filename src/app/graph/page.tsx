@@ -17,7 +17,8 @@ export default function GraphPage() {
 
   const fetchGraphData = async () => {
     try {
-      const response = await fetch("/api/graph");
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+      const response = await fetch(`${apiUrl}/api/graph`);
       const result = await response.json();
 
       if (!response.ok) {

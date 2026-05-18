@@ -26,16 +26,20 @@ An AI-powered educational assistant that transforms course documents into an int
 - [x] Build passes successfully
 
 ## Key Decisions
-- Using Next.js App Router for full-stack (API routes + frontend)
-- Neo4j AuraDB for both graph storage and vector index (no separate vector DB needed)
-- LangChain as the orchestration layer for RAG pipeline
+- Frontend: Next.js (UI only, no API routes) — calls Python backend
+- Backend: FastAPI (Python) — all business logic, LLM, Neo4j, PDF parsing
+- Neo4j AuraDB for both graph storage and vector index
+- LangChain (Python) as the orchestration layer for RAG pipeline
 - Groq API as primary LLM (fast inference), OpenAI as fallback
-- BGE-M3 or multilingual-e5 for multilingual embeddings
+- BGE-M3 for multilingual embeddings via HuggingFace Inference API
+- PyMuPDF (fitz) for PDF text extraction — fast, no worker issues
 - shadcn/ui for consistent, accessible UI components
 
 ## Architecture Notes
-- Monorepo structure: single Next.js app with `/app` for pages and `/app/api` for backend
-- `/lib` contains core logic (chunking, embedding, graph, retrieval, llm)
+- Separated frontend/backend: Next.js (port 3000) + FastAPI (port 8000)
+- Frontend calls `NEXT_PUBLIC_API_URL` for all API requests
+- Backend in `/backend` with its own venv and requirements.txt
+- `/backend/app/services` contains core logic (chunking, embedding, graph, retrieval, llm)
 - `/agents` contains agent-specific prompts and configurations
 - Neo4j stores: nodes (concepts, documents, chunks), relationships, and vector embeddings
 
