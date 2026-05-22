@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Network, Loader2, AlertCircle } from "lucide-react";
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import type { GraphData, GraphNode } from "@/types";
 
 export default function GraphPage() {
@@ -12,26 +12,38 @@ export default function GraphPage() {
   const [selectedNode, setSelectedNode] = useState<GraphNode | null>(null);
 
   useEffect(() => {
-    fetchGraphData();
-  }, []);
+    let cancelled = false;
 
-  const fetchGraphData = async () => {
-    try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
-      const response = await fetch(`${apiUrl}/api/graph`);
-      const result = await response.json();
+    async function fetchGraphData() {
+      try {
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+        const response = await fetch(`${apiUrl}/api/graph`);
+        const result = await response.json();
 
-      if (!response.ok) {
-        throw new Error(result.error || "Failed to load graph");
+        if (cancelled) return;
+
+        if (!response.ok) {
+          throw new Error(result.error || "Failed to load graph");
+        }
+
+        setGraphData(result.data);
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "Failed to load graph data");
+        }
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
-
-      setGraphData(result.data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to load graph data");
-    } finally {
-      setLoading(false);
     }
-  };
+
+    fetchGraphData();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   if (loading) {
     return (
