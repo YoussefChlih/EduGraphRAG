@@ -19,7 +19,7 @@ Rationale:
 ## ADR-002: Neo4j for Both Graph and Vector Storage
 
 Date: 2026-05-17
-Status: Accepted
+Status: Superseded by ADR-008
 
 Context: Need a graph database for the knowledge graph AND a vector database for semantic search.
 
@@ -110,3 +110,23 @@ Rationale:
 - Overlap ensures context is not lost at chunk boundaries
 - Small enough for precise retrieval, large enough for meaningful content
 - Recursive splitting on paragraph, sentence, then word boundaries preserves coherence
+
+
+## ADR-008: turbovec for Vector Similarity Search (replaces Neo4j Vector Index)
+
+Date: 2026-05-22
+Status: Accepted (supersedes ADR-002 for vector search)
+
+Context: Neo4j's built-in vector index works but adds latency (network round-trip to AuraDB for every search), ties vector search to a managed service, and stores full float32 embeddings (6 KB per 1024-dim vector). Wanted a faster, local, privacy-friendly alternative.
+
+Decision: Use turbovec (TurboQuant-based Rust vector index with Python bindings) for all vector similarity search. Neo4j remains for the knowledge graph only.
+
+Rationale:
+- Pure local: no data leaves the machine, no managed service dependency for search
+- 4-bit quantization: 16x compression (1024-dim vector goes from 4 KB float32 to 256 bytes)
+- Faster than FAISS: SIMD-accelerated scoring (NEON on ARM, AVX-512 on x86)
+- Zero training: data-oblivious quantizer, no codebook calibration or rebuilds
+- Persistent: IdMapIndex saves to disk (.tvim format), survives restarts
+- Filtered search: supports allowlist-based retrieval for future hybrid use cases
+- Simple API: pip install turbovec, add vectors, search — no server to manage
+- Neo4j still handles graph traversal, document/chunk metadata, and concept relationships

@@ -16,7 +16,7 @@
 - [x] Text cleaning and normalization
 - [x] Recursive text chunking (512 chars, 50 overlap)
 - [x] Embedding generation via HuggingFace API (BGE-M3)
-- [x] Store chunks and embeddings in Neo4j
+- [x] Store chunks in Neo4j, embeddings in turbovec (local vector index)
 - [ ] Document management UI (list, delete)
 
 ## Phase 3: Knowledge Graph [COMPLETE]
@@ -29,7 +29,7 @@
 
 ## Phase 4: Retrieval and Chat [COMPLETE]
 
-- [x] Vector similarity search via Neo4j vector index
+- [x] Vector similarity search via turbovec (local, TurboQuant)
 - [x] Graph traversal retrieval (1-hop expansion)
 - [x] Hybrid retrieval merging and deduplication
 - [x] LangChain RAG pipeline (Groq + OpenAI)
@@ -59,7 +59,6 @@
 ## Phase 7: Deployment
 
 - [ ] Neo4j Aura Cloud instance setup
-- [ ] Create vector index in production
 - [ ] Vercel deployment for frontend
 - [ ] Railway or Render deployment for backend
 - [ ] Environment variable management in production

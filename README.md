@@ -14,7 +14,7 @@ The platform combines Retrieval-Augmented Generation (RAG), Knowledge Graphs, se
 - Automatic text extraction and chunking
 - Multilingual support (English, French, Arabic)
 - Knowledge graph generation with Neo4j
-- Semantic vector search with BGE-M3 embeddings
+- Semantic vector search with turbovec (TurboQuant, local)
 - Hybrid GraphRAG retrieval pipeline (vector + graph traversal)
 - AI chatbot with contextual, cited answers
 - Concept relationship exploration and visualization
@@ -32,7 +32,8 @@ Frontend (Next.js, port 3000)        Backend (FastAPI, port 8000)
                                        DELETE /api/documents/{id}
                                               |
                                               v
-                                       Neo4j AuraDB (Graph + Vector)
+                                       Neo4j AuraDB (Knowledge Graph)
+                                       turbovec (Vector Search, local)
                                        Groq / OpenAI (LLM)
                                        HuggingFace (Embeddings)
 ```
@@ -54,7 +55,8 @@ Frontend (Next.js, port 3000)        Backend (FastAPI, port 8000)
 - httpx for async HTTP
 
 ### Database
-- Neo4j AuraDB (graph storage + vector index)
+- Neo4j AuraDB (knowledge graph storage)
+- turbovec (local vector index, TurboQuant-based, 4-bit quantization)
 
 ### AI Models
 - LLM: Groq (llama-3.1-70b-versatile) with OpenAI fallback
@@ -92,15 +94,7 @@ Open http://localhost:3000 in your browser.
 
 ### Neo4j Vector Index Setup
 
-Run this Cypher query in your Neo4j Aura console:
-
-```cypher
-CREATE VECTOR INDEX chunk_embeddings FOR (c:Chunk) ON (c.embedding)
-OPTIONS {indexConfig: {
-  `vector.dimensions`: 1024,
-  `vector.similarity_function`: 'cosine'
-}}
-```
+Neo4j is used only for the knowledge graph (documents, chunks, concepts, relationships). Vector similarity search is handled locally by turbovec — no Neo4j vector index needed.
 
 ## Project Structure
 
@@ -140,6 +134,9 @@ Text Chunking (recursive splitter, 512 tokens, 50 overlap)
     |
     v
 Embedding Generation (BGE-M3, 1024 dimensions)
+    |
+    v
+Vector Indexing (turbovec, 4-bit quantization)
     |
     v
 Entity and Relation Extraction (LLM-based)

@@ -2,21 +2,12 @@
 
 ## Priority Tasks
 
-1. Set up Neo4j Aura instance and create the vector index:
-   ```cypher
-   CREATE VECTOR INDEX chunk_embeddings FOR (c:Chunk) ON (c.embedding)
-   OPTIONS {indexConfig: {
-     `vector.dimensions`: 1024,
-     `vector.similarity_function`: 'cosine'
-   }}
-   ```
-
-2. Create backend/.env with real API keys:
+1. Create backend/.env with real API keys:
    - Neo4j Aura credentials
    - Groq API key
    - HuggingFace API token
 
-3. Install backend dependencies and test:
+2. Install backend dependencies and test:
    ```bash
    cd backend
    python -m venv venv
@@ -25,18 +16,19 @@
    uvicorn app.main:app --reload
    ```
 
-4. Test the full pipeline end-to-end with a small PDF
+3. Test the full pipeline end-to-end with a small PDF
 
-5. Add interactive graph visualization with react-force-graph
+4. Add interactive graph visualization with react-force-graph
 
-6. Add document list page showing uploaded documents with delete option
+5. Add document list page showing uploaded documents with delete option
 
 ## Open Questions
 
-- Neo4j Aura free tier: confirm vector index support and limits
+- Neo4j Aura free tier: confirm limits for graph storage
 - HuggingFace Inference API: measure latency for BGE-M3 embeddings
 - Groq rate limits: determine if batching is needed for large documents
 - Deployment: choose between Railway and Render for the Python backend
+- turbovec persistence: ensure vector index is backed up in production
 
 ## Future Enhancements
 

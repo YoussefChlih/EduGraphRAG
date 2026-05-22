@@ -61,6 +61,7 @@ backend/
 │       ├── pdf_parser.py    # PDF text extraction (PyMuPDF)
 │       ├── chunker.py       # Text chunking
 │       ├── embeddings.py    # BGE-M3 via HuggingFace API
+│       ├── vector_store.py  # turbovec vector index (local)
 │       ├── llm.py           # Groq/OpenAI via LangChain
 │       ├── graph_builder.py # Entity extraction + Neo4j storage
 │       └── retrieval.py     # Hybrid vector + graph retrieval
