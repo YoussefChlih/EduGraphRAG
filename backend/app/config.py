@@ -25,5 +25,8 @@ class Settings(BaseModel):
     chunk_size: int = int(os.getenv("CHUNK_SIZE", "512"))
     chunk_overlap: int = int(os.getenv("CHUNK_OVERLAP", "50"))
 
+    # Vector Store (turbovec)
+    vector_store_path: str = os.getenv("VECTOR_STORE_PATH", "./data/vector_index")
+
 
 settings = Settings()

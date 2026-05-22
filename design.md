@@ -34,12 +34,12 @@ EduGraphRAG is a multilingual educational platform that combines Knowledge Graph
 |                  External Services                          |
 |   +--------------+   +----------+   +----------+          |
 |   | Neo4j AuraDB |   | Groq API |   |OpenAI API|          |
-|   |(Graph+Vector)|   |  (LLM)   |   |(Fallback)|          |
+|   | (Graph Only) |   |  (LLM)   |   |(Fallback)|          |
 |   +--------------+   +----------+   +----------+          |
-|                       +------------------+                 |
-|                       | HuggingFace API  |                 |
-|                       |  (Embeddings)    |                 |
-|                       +------------------+                 |
+|   +------------------+   +------------------+              |
+|   | turbovec (local) |   | HuggingFace API  |              |
+|   | (Vector Search)  |   |  (Embeddings)    |              |
+|   +------------------+   +------------------+              |
 +-----------------------------------------------------------+
 ```
 
@@ -63,10 +63,13 @@ Recursive Chunking -- 512 chars, 50 overlap, smart boundaries
 Embedding Generation -- BGE-M3 via HuggingFace API (1024 dims)
     |
     v
+Vector Indexing -- turbovec (4-bit TurboQuant, local persistence)
+    |
+    v
 Entity Extraction -- LLM identifies concepts and relationships
     |
     v
-Neo4j Storage -- Document, Chunk, Concept nodes + relationships + embeddings
+Neo4j Storage -- Document, Chunk, Concept nodes + relationships
 ```
 
 ### Query Pipeline (Hybrid GraphRAG)
@@ -78,7 +81,7 @@ User Question
 Query Embedding -- BGE-M3 (same model as ingestion)
     |
     v
-Vector Search -- top-k similar chunks via Neo4j vector index
+Vector Search -- top-k similar chunks via turbovec (local, SIMD-accelerated)
     |
     v
 Graph Expansion -- traverse 1-2 hops from retrieved chunks to find related concepts
@@ -110,7 +113,6 @@ Document:
 Chunk:
 - id (string, document_id + chunk index)
 - text (string)
-- embedding (float array, 1024 dimensions)
 - pageNumber (integer)
 - chunkIndex (integer)
 - documentId (string)
@@ -132,10 +134,12 @@ Concept:
 
 ### Vector Index
 
-- Name: chunk_embeddings
-- Property: Chunk.embedding
+- Engine: turbovec (TurboQuant-based, Rust with Python bindings)
+- Storage: Local file (IdMapIndex, .tvim format)
 - Dimensions: 1024
-- Similarity function: cosine
+- Quantization: 4-bit (16x compression vs float32)
+- Similarity: Inner product (normalized vectors → cosine equivalent)
+- Persistence: ./data/vector_index/chunks.tvim
 
 ## API Endpoints
 

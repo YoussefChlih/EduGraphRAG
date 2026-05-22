@@ -11,6 +11,7 @@ from app.services.chunker import chunk_document
 from app.services.embeddings import generate_embedding
 from app.services.graph_builder import extract_entities, store_in_graph
 from app.services.neo4j_service import run_query
+from app.services.vector_store import add_vector
 
 router = APIRouter()
 
@@ -90,7 +91,7 @@ async def upload_document(file: UploadFile = File(...)):
             # Generate embedding
             embedding = await generate_embedding(chunk.text)
 
-            # Store chunk in Neo4j
+            # Store chunk in Neo4j (without embedding - vector search is handled by turbovec)
             await run_query(
                 """MATCH (d:Document {id: $document_id})
                    CREATE (c:Chunk {
@@ -98,8 +99,7 @@ async def upload_document(file: UploadFile = File(...)):
                        text: $text,
                        pageNumber: $page_number,
                        chunkIndex: $chunk_index,
-                       documentId: $document_id,
-                       embedding: $embedding
+                       documentId: $document_id
                    })
                    CREATE (d)-[:HAS_CHUNK]->(c)""",
                 {
@@ -108,9 +108,11 @@ async def upload_document(file: UploadFile = File(...)):
                     "text": chunk.text,
                     "page_number": chunk.page_number,
                     "chunk_index": chunk.index,
-                    "embedding": embedding,
                 },
             )
+
+            # Store embedding in turbovec
+            add_vector(chunk_id, embedding)
 
             # Extract entities and store in graph
             extraction = await extract_entities(chunk.text)

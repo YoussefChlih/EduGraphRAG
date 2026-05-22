@@ -27,13 +27,15 @@
 | httpx | 0.27 | Async HTTP client (for embeddings API) |
 | python-dotenv | 1.0 | Environment variable loading |
 | Pydantic | 2.9 | Data validation and settings |
+| turbovec | 0.5.2 | Local vector index (TurboQuant, Rust + Python) |
+| numpy | 1.26 | Numerical arrays for vector operations |
 
-## Database
+## Database & Vector Search
 
 | Technology | Purpose |
 |-----------|---------|
-| Neo4j AuraDB | Graph database + vector index |
-| Neo4j Vector Index | Cosine similarity search on embeddings |
+| Neo4j AuraDB | Knowledge graph (documents, chunks, concepts, relationships) |
+| turbovec | Local vector similarity search (4-bit TurboQuant quantization) |
 
 ## Embedding Models
 
@@ -64,5 +66,6 @@ Embeddings are generated via the HuggingFace Inference API (no local GPU require
 
 - PDF to Chunks: PyMuPDF extracts per-page text, recursive splitter creates overlapping chunks
 - Chunks to Embeddings: BGE-M3 via HuggingFace API generates 1024-dim vectors
+- Embeddings to Vector Index: turbovec stores quantized vectors locally with persistent ID mapping
 - Chunks to Graph: LLM extracts entities and relations, stored as Neo4j nodes and edges
-- Query to Response: Hybrid retrieval (vector + graph) builds context, LLM generates cited answer
+- Query to Response: Hybrid retrieval (turbovec vector search + Neo4j graph traversal) builds context, LLM generates cited answer

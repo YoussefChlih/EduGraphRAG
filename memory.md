@@ -19,13 +19,13 @@ An AI-powered educational assistant that transforms course documents into an int
 - [x] Entity and relation extraction (LLM-based)
 - [x] Knowledge graph storage (Neo4j)
 - [x] Hybrid retrieval pipeline (vector + graph)
+- [x] Vector search migrated to turbovec (local, TurboQuant)
 - [x] LLM response generation (Groq/OpenAI via LangChain)
 - [x] Chat UI with source citations
 - [x] Upload UI with drag-and-drop
 - [x] Graph explorer page
 - [x] Multilingual support (EN, FR, AR) with language detection
 - [x] Frontend build passes
-- [ ] Neo4j vector index creation (requires Aura instance)
 - [ ] End-to-end testing with real API keys
 - [ ] Graph visualization (react-force-graph)
 - [ ] Deployment (Vercel + Railway/Render + Neo4j Aura)
@@ -34,7 +34,8 @@ An AI-powered educational assistant that transforms course documents into an int
 
 - Frontend: Next.js (port 3000) -- UI only, calls backend API
 - Backend: FastAPI (port 8000) -- all business logic
-- Database: Neo4j AuraDB -- graph + vector storage
+- Database: Neo4j AuraDB -- knowledge graph storage
+- Vector Search: turbovec (local, TurboQuant 4-bit quantization)
 - LLM: Groq (primary) / OpenAI (fallback) via LangChain
 - Embeddings: BAAI/bge-m3 via HuggingFace Inference API
 - PDF: PyMuPDF (fitz)
@@ -43,7 +44,8 @@ An AI-powered educational assistant that transforms course documents into an int
 
 - Separated frontend/backend after encountering JS PDF library issues in Next.js
 - Python backend chosen for mature ML/NLP ecosystem
-- Neo4j for both graph and vector (single database, hybrid queries)
+- Neo4j for knowledge graph (documents, chunks, concepts, relationships)
+- turbovec for vector similarity search (local, fast, 16x compression vs float32)
 - BGE-M3 for cross-lingual retrieval without local GPU
 - Groq for fast inference, OpenAI as reliable fallback
 - PyMuPDF for robust PDF parsing without worker dependencies

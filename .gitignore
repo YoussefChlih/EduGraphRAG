@@ -52,6 +52,9 @@ backend/.env
 uploads/
 temp/
 
+# Vector store data (turbovec index)
+backend/data/
+
 # IDE
 .vscode/
 .idea/

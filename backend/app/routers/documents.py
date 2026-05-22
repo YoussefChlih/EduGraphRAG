@@ -3,6 +3,7 @@
 from fastapi import APIRouter, HTTPException
 
 from app.services.neo4j_service import run_query
+from app.services.vector_store import remove_document_vectors
 
 router = APIRouter()
 
@@ -29,6 +30,9 @@ async def list_documents():
 async def delete_document(document_id: str):
     """Delete a document and all its associated data."""
     try:
+        # Remove vectors from turbovec
+        remove_document_vectors(document_id)
+
         # Delete chunks and their relationships, then the document
         await run_query(
             """MATCH (d:Document {id: $id})

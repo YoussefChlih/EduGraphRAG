@@ -1,9 +1,10 @@
-"""Hybrid retrieval: vector similarity search + knowledge graph traversal."""
+"""Hybrid retrieval: vector similarity search (turbovec) + knowledge graph traversal."""
 
 from dataclasses import dataclass, field
 
 from app.services.neo4j_service import run_query
 from app.services.embeddings import generate_embedding
+from app.services.vector_store import search as vector_store_search
 
 
 @dataclass
@@ -50,15 +51,23 @@ async def hybrid_retrieve(query: str, top_k: int = 5) -> RetrievalResult:
 
 
 async def vector_search(embedding: list[float], top_k: int) -> list[RetrievedChunk]:
-    """Vector similarity search using Neo4j vector index."""
+    """Vector similarity search using turbovec."""
+    # Search turbovec index
+    search_results = vector_store_search(embedding, top_k)
+
+    if not search_results:
+        return []
+
+    # Get chunk metadata from Neo4j
+    chunk_ids = [chunk_id for chunk_id, _ in search_results]
+    score_map = {chunk_id: score for chunk_id, score in search_results}
+
     results = await run_query(
-        """CALL db.index.vector.queryNodes('chunk_embeddings', $top_k, $embedding)
-           YIELD node AS chunk, score
-           MATCH (doc:Document)-[:HAS_CHUNK]->(chunk)
+        """MATCH (doc:Document)-[:HAS_CHUNK]->(chunk:Chunk)
+           WHERE chunk.id IN $chunk_ids
            RETURN chunk.id AS id, chunk.text AS text, chunk.pageNumber AS page_number,
-                  chunk.documentId AS document_id, doc.title AS document_title, score
-           ORDER BY score DESC""",
-        {"top_k": top_k, "embedding": embedding},
+                  chunk.documentId AS document_id, doc.title AS document_title""",
+        {"chunk_ids": chunk_ids},
     )
 
     return [
@@ -68,7 +77,7 @@ async def vector_search(embedding: list[float], top_k: int) -> list[RetrievedChu
             page_number=r["page_number"],
             document_id=r["document_id"],
             document_title=r["document_title"],
-            score=r["score"],
+            score=score_map.get(r["id"], 0.0),
         )
         for r in results
     ]
