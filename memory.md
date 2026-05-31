@@ -36,9 +36,10 @@ An AI-powered educational assistant that transforms course documents into an int
 - Backend: FastAPI (port 8000) -- all business logic
 - Database: Neo4j AuraDB -- knowledge graph storage
 - Vector Search: turbovec (local, TurboQuant 4-bit quantization)
-- LLM: Groq (primary) / OpenAI (fallback) via LangChain
-- Embeddings: BAAI/bge-m3 via HuggingFace Inference API
+- LLM: Groq llama-3.3-70b-versatile (primary) / OpenAI (fallback) via LangChain
+- Embeddings: BAAI/bge-m3 via HuggingFace Inference Providers router
 - PDF: PyMuPDF (fitz)
+- Runtime: Python 3.13, numpy 2.x
 
 ## Key Decisions
 
@@ -58,7 +59,7 @@ EduGraphRAG/
 │   ├── app/main.py
 │   ├── app/config.py
 │   ├── app/routers/        # upload, chat, documents, graph, concepts
-│   └── app/services/       # neo4j, pdf_parser, chunker, embeddings, llm, graph_builder, retrieval
+│   └── app/services/       # neo4j, pdf_parser, chunker, embeddings, vector_store, llm, graph_builder, retrieval
 ├── src/                     # Next.js frontend
 │   ├── app/                 # Pages: home, upload, chat, graph
 │   ├── components/          # Navigation, UI components
@@ -68,6 +69,16 @@ EduGraphRAG/
 └── agents/                  # Prompts, configs, context for AI agents
 ```
 
+## Known Issues Fixed (2026-05-31)
+
+- Groq model `llama-3.1-70b-versatile` was decommissioned → switched to `llama-3.3-70b-versatile`
+- HuggingFace `api-inference.huggingface.co` endpoint retired → switched to Inference Providers router (`router.huggingface.co/hf-inference/.../pipeline/feature-extraction`)
+- `load_dotenv()` ran after config import → env vars loaded empty; now loaded inside config.py at import time
+- `turbovec==0.5.2` had no Windows/py3.13 wheel → bumped to `0.7.0`
+- `numpy==1.26.4` + langchain 0.3.3 pin blocked Python 3.13 → numpy `>=2.1.0`, langchain stack loosened to `>=0.3.27,<0.4`
+- Chat now degrades gracefully when retrieval/embeddings are unavailable (answers from LLM instead of 500)
+- Embedding response parser hardened (handles 1D pooled + 2D token-matrix responses)
+
 ## Last Updated
 
-2026-05-18 -- Backend migrated to Python FastAPI, all docs updated
+2026-05-31 -- Fixed upload/chat runtime errors (Groq model, HF endpoint, dotenv order, dependency pins); verified backend end-to-end

@@ -59,22 +59,22 @@ Frontend (Next.js, port 3000)        Backend (FastAPI, port 8000)
 - turbovec (local vector index, TurboQuant-based, 4-bit quantization)
 
 ### AI Models
-- LLM: Groq (llama-3.1-70b-versatile) with OpenAI fallback
-- Embeddings: BAAI/bge-m3 (1024 dimensions, 100+ languages)
+- LLM: Groq (llama-3.3-70b-versatile) with OpenAI fallback
+- Embeddings: BAAI/bge-m3 (1024 dimensions, 100+ languages) via HuggingFace Inference Providers router
 
 ## Getting Started
 
 ### Prerequisites
 - Node.js 20+
-- Python 3.11+
+- Python 3.11+ (tested on 3.13)
 - Neo4j Aura instance (free tier works)
-- API keys: Groq or OpenAI, HuggingFace
+- API keys: Groq or OpenAI, HuggingFace (token with "Inference Providers" permission)
 
 ### Backend Setup
 
 ```bash
 cd backend
-python -m venv venv
+py -m venv venv             # Windows (Python 3.13); use python3 on macOS/Linux
 venv\Scripts\activate        # Windows
 source venv/bin/activate     # macOS/Linux
 pip install -r requirements.txt

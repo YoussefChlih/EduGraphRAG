@@ -44,13 +44,13 @@
 | BAAI/bge-m3 | 1024 | 100+ | Primary choice, strong multilingual performance |
 | multilingual-e5-large | 1024 | 100+ | Alternative option |
 
-Embeddings are generated via the HuggingFace Inference API (no local GPU required).
+Embeddings are generated via the HuggingFace Inference Providers router (`router.huggingface.co/hf-inference/.../pipeline/feature-extraction`), no local GPU required. The legacy `api-inference.huggingface.co` endpoint has been retired.
 
 ## LLM Models
 
 | Provider | Model | Use Case |
 |----------|-------|----------|
-| Groq | llama-3.1-70b-versatile | Chat responses (primary, fast inference) |
+| Groq | llama-3.3-70b-versatile | Chat responses (primary, fast inference) |
 | Groq | llama-3.1-8b-instant | Entity extraction (cost-effective) |
 | OpenAI | gpt-4o-mini | Fallback for both tasks |
 

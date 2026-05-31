@@ -6,7 +6,7 @@ from pydantic import BaseModel
 from langchain_core.messages import SystemMessage, HumanMessage
 
 from app.services.llm import get_llm
-from app.services.retrieval import hybrid_retrieve
+from app.services.retrieval import hybrid_retrieve, RetrievalResult, GraphContext
 
 router = APIRouter()
 
@@ -34,8 +34,14 @@ async def chat(request: ChatRequest):
         raise HTTPException(status_code=400, detail="Message is required")
 
     try:
-        # Retrieve relevant context
-        retrieval = await hybrid_retrieve(request.message)
+        # Retrieve relevant context (degrade gracefully if retrieval fails)
+        try:
+            retrieval = await hybrid_retrieve(request.message)
+        except Exception as retrieval_error:
+            # Retrieval depends on external services (embeddings API, Neo4j).
+            # If they're unavailable, still answer with the LLM rather than failing.
+            print(f"[chat] retrieval failed, continuing without context: {retrieval_error}")
+            retrieval = RetrievalResult(chunks=[], graph_context=GraphContext())
 
         # Build context string
         context_parts = [

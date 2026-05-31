@@ -69,6 +69,6 @@ The LLM should return:
 
 ## Configuration
 
-- Model: llama-3.1-70b-versatile (Groq) or gpt-4o-mini (OpenAI fallback)
+- Model: llama-3.3-70b-versatile (Groq) or gpt-4o-mini (OpenAI fallback)
 - Temperature: 0.3 (balanced between creativity and accuracy)
 - Max tokens: 2048

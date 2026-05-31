@@ -60,7 +60,7 @@ Text Cleaning -- normalize whitespace, remove artifacts
 Recursive Chunking -- 512 chars, 50 overlap, smart boundaries
     |
     v
-Embedding Generation -- BGE-M3 via HuggingFace API (1024 dims)
+Embedding Generation -- BGE-M3 via HuggingFace Inference Providers router (1024 dims)
     |
     v
 Vector Indexing -- turbovec (4-bit TurboQuant, local persistence)

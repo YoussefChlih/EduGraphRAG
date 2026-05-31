@@ -1,5 +1,11 @@
 import os
+from dotenv import load_dotenv
 from pydantic import BaseModel
+
+# Load environment variables from .env before reading any settings.
+# This must happen at import time so `settings` is populated correctly
+# regardless of import order elsewhere in the app.
+load_dotenv()
 
 
 class Settings(BaseModel):
@@ -17,7 +23,7 @@ class Settings(BaseModel):
     embedding_model: str = os.getenv("EMBEDDING_MODEL", "BAAI/bge-m3")
     embedding_api_url: str = os.getenv(
         "EMBEDDING_API_URL",
-        "https://api-inference.huggingface.co/models/BAAI/bge-m3",
+        "https://router.huggingface.co/hf-inference/models/BAAI/bge-m3/pipeline/feature-extraction",
     )
 
     # App

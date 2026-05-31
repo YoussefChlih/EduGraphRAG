@@ -6,7 +6,7 @@ from langchain_core.language_models.chat_models import BaseChatModel
 
 from app.config import settings
 
-DEFAULT_GROQ_MODEL = "llama-3.1-70b-versatile"
+DEFAULT_GROQ_MODEL = "llama-3.3-70b-versatile"
 DEFAULT_OPENAI_MODEL = "gpt-4o-mini"
 
 

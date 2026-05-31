@@ -44,7 +44,7 @@ Decision: Use Groq API as primary provider, OpenAI as fallback.
 Rationale:
 - Groq inference is significantly faster (sub-second for most queries)
 - Free tier is generous for development and testing
-- llama-3.1-70b-versatile handles multilingual content well
+- llama-3.3-70b-versatile handles multilingual content well (note: llama-3.1-70b-versatile was decommissioned by Groq, see ADR-009)
 - OpenAI fallback ensures reliability if Groq is unavailable
 - LangChain abstracts the provider, making switching trivial
 
@@ -55,7 +55,7 @@ Status: Accepted
 
 Context: Need an embedding model that handles English, French, and Arabic effectively.
 
-Decision: Use BAAI/bge-m3 via HuggingFace Inference API.
+Decision: Use BAAI/bge-m3 via the HuggingFace Inference Providers router endpoint (`router.huggingface.co/hf-inference/models/BAAI/bge-m3/pipeline/feature-extraction`).
 
 Rationale:
 - Trained on 100+ languages with strong cross-lingual performance
@@ -63,6 +63,8 @@ Rationale:
 - HuggingFace Inference API avoids local GPU requirement
 - Supports cross-lingual retrieval (query in French, retrieve Arabic content)
 - No model download or hosting needed
+
+Note: The legacy `api-inference.huggingface.co` endpoint was retired by HuggingFace; the project now targets the Inference Providers router (see ADR-009).
 
 ## ADR-005: LangChain Python for RAG Orchestration
 
@@ -130,3 +132,27 @@ Rationale:
 - Filtered search: supports allowlist-based retrieval for future hybrid use cases
 - Simple API: pip install turbovec, add vectors, search — no server to manage
 - Neo4j still handles graph traversal, document/chunk metadata, and concept relationships
+
+
+## ADR-009: Runtime and External-Service Fixes (Python 3.13, Groq model, HF endpoint)
+
+Date: 2026-05-31
+Status: Accepted
+
+Context: Upload and chat endpoints returned 500 errors. Root-cause investigation against a live backend surfaced several breakages caused by external-service changes and dependency incompatibilities on Python 3.13.
+
+Decision: Apply the following fixes:
+1. Groq model: `llama-3.1-70b-versatile` → `llama-3.3-70b-versatile` (the 3.1 model was decommissioned by Groq).
+2. Embeddings endpoint: `api-inference.huggingface.co/models/...` → `router.huggingface.co/hf-inference/models/.../pipeline/feature-extraction` (legacy domain retired, no longer resolves).
+3. Env loading: call `load_dotenv()` inside `config.py` at import time. Previously `main.py` loaded it after importing routers/config, so `settings` read empty values.
+4. Dependencies for Python 3.13: `turbovec` 0.5.2 → 0.7.0 (Windows/py3.13 wheel), `numpy` → `>=2.1.0`, langchain stack loosened to `>=0.3.27,<0.4` (langchain 0.3.3 pinned numpy<2.0 which has no 3.13 wheel).
+5. Resilience: chat degrades gracefully — if retrieval/embeddings fail, it still answers from the LLM rather than returning 500.
+6. Embedding parsing: handle both 1D pooled vectors and 2D token matrices (mean-pool) from the feature-extraction pipeline.
+
+Rationale:
+- Verified empirically by running the backend and exercising /api/upload and /api/chat; confirmed Groq responds with the corrected model and the new HF endpoint resolves and authenticates.
+- Core pipeline (PDF → chunk → embed → turbovec add/search/remove) validated end-to-end with an offline harness.
+- Graceful degradation keeps the chat usable during partial outages.
+
+Notes:
+- Valid `HF_API_TOKEN` (with "Inference Providers" permission) and `NEO4J_PASSWORD` are still required for full functionality; these are user-provided secrets, not code issues.
